@@ -10,6 +10,9 @@
 # [*transfers*]
 #   Array of IP addresses or "none" allowed to transfer. Default: empty
 #
+# [*forward_only*]
+#   Boolean whether to forward only. Default: false
+#
 # [*listen_on*]
 #   Array of IP addresses on which to listen. Default: empty, meaning "any"
 #
@@ -82,6 +85,7 @@ include dns::server::params
 define dns::server::options (
   $forwarders = [],
   $transfers = [],
+  $forward_only = false,
   $listen_on = [],
   $listen_on_ipv6 = [],
   $listen_on_port = undef,
@@ -89,6 +93,7 @@ define dns::server::options (
   $check_names_master = undef,
   $check_names_slave = undef,
   $check_names_response = undef,
+  $ipv6_listen_ifs  = "any",
   $allow_query = [],
   $statistic_channel_ip = undef,
   $statistic_channel_port = undef,
@@ -97,6 +102,7 @@ define dns::server::options (
   $dnssec_validation = $dns::server::params::default_dnssec_validation,
 ) {
   $valid_check_names = ['fail', 'warn', 'ignore']
+  $valid_ipv6_listen_ifs = ['none', 'any']
   $cfg_dir = $::dns::server::params::cfg_dir
   $data_dir = $::dns::server::params::data_dir
 
@@ -106,6 +112,7 @@ define dns::server::options (
 
   validate_array($forwarders)
   validate_array($transfers)
+  validate_bool($forward_only)
   validate_array($listen_on)
   validate_array($listen_on_ipv6)
   validate_array($allow_recursion)
@@ -117,6 +124,9 @@ define dns::server::options (
   }
   if $check_names_response != undef and !member($valid_check_names, $check_names_response) {
     fail("The check name policy check_names_response must be ${valid_check_names}")
+  }
+  if !member($valid_ipv6_listen_ifs, $ipv6_listen_ifs) {
+    fail("The list of valid ipv6 listen interfaces is neither 'none' nor 'any'")
   }
   validate_array($allow_query)
 

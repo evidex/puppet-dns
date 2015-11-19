@@ -155,8 +155,13 @@ define dns::zone (
 
   validate_array($allow_transfer)
   validate_array($allow_forwarder)
+
+  if $dns::server::options::forwarders and $allow_forwarder {
+    fail("You cannot specify a global forwarder and \
+    a zone forwarder for zone ${soa}")
+  }
   if !member(['first', 'only'], $forward_policy) {
-    error('The forward policy can only be set to either first or only')
+    fail('The forward policy can only be set to either first or only')
   }
 
   validate_array($also_notify)

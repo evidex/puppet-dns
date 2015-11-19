@@ -12,13 +12,17 @@ options {
 
 <% if @forwarders.size == 0 then -%>
     // forwarders {
-	// 	0.0.0.0;
-	// };
+    //  0.0.0.0;
+    // };
 <% else -%>
     forwarders {
     <% @forwarders.each do |forwarder| -%>
       <%= forwarder -%>;
     <% end -%>};
+<% end -%>
+<% if @forward_only == true then -%>
+
+    forward only;
 <% end -%>
 
 <% if @transfers.size != 0 then -%>
@@ -104,4 +108,5 @@ also-notify {
 <% end -%>
 
 	auth-nxdomain no;    # conform to RFC1035
+	listen-on-v6 { <%= @ipv6_listen_ifs %>; };
 };
